@@ -1,25 +1,24 @@
 import express from "express";
-// // 1. Natively load env variables BEFORE importing local modules that rely on them
-// try {
-//   process.loadEnvFile();
-// } catch (error) {
-//   console.warn(
-//     "⚠️ Warning: .env file not found. Falling back to system environment variables.",
-//   );
-// }
-
-// 2. Import the database functions after environment variables are ready
-import { connectDB, closeDB } from "./config/db.js";
-
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser"; // 👈 Added for secure cookie parsing
+import helmet from "helmet"; // 👈 Highly recommended to secure your HTTP headers
+
+// 1. Core Database & Error Handler Imports
+import { connectDB, closeDB } from "./config/db.js";
+import errorHandler from "./middleware/errorHandler.js";
+
+// 2. Authentication Router Import
+import authRouter from "./routes/auth.routes.js"; // 👈 Added to connect your auth gates
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(express.json());
+// 3. Core Global Middlewares
+app.use(helmet()); // Basic security headers protection
+app.use(express.json()); // Parses incoming JSON payloads
+app.use(cookieParser(process.env.COOKIE_SECRET)); // 👈 Parses incoming signed httpOnly cookies
 
-// Simple Health Check Route
+// 4. Simple Health Check Route
 app.get("/health", (req, res) => {
   res.status(200).json({
     status: "UP",
@@ -28,15 +27,21 @@ app.get("/health", (req, res) => {
   });
 });
 
+// 5. Mount API Routes
+app.use("/api/auth", authRouter); // 🚀 Mounts endpoints to http://localhost:5000/api/auth/...
+
+// 6. CRITICAL: Centralized Error Handler (Must be registered LAST!)
+app.use(errorHandler);
+
 // Start Server and Connect DB
 const server = app.listen(PORT, async () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);
   await connectDB();
 });
 
-// Graceful Shutdown
+// Graceful Shutdown (Prevents open hanging streams on server reboots)
 const gracefulShutdown = () => {
-  console.log("Stopping server gracefully...");
+  console.log("\nStopping server gracefully...");
   server.close(async () => {
     console.log("HTTP server closed.");
     await closeDB();

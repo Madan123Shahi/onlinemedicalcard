@@ -1,9 +1,10 @@
-import ApiError from "./utils/ApiError.js";
+import ApiError from "../utils/ApiError.js";
 
 // Central place where every thrown/forwarded error becomes a JSON response.
 const errorHandler = (err, req, res, next) => {
   let error = err;
 
+  console.error("🔍 ERROR DETAILS:", error); //
   // 1. Convert standard errors to our clean ApiError shape
   if (!error.isApiError) {
     // Handle Mongoose Duplicate Key Error (e.g., unique: true on email)
@@ -11,6 +12,7 @@ const errorHandler = (err, req, res, next) => {
       const field = Object.keys(error.keyValue || {})[0] || "Field";
       error = new ApiError(409, `${field} is already registered`);
     }
+
     // Handle Mongoose Validation Failures
     else if (error.name === "ValidationError") {
       const messages = Object.values(error.errors).map((el) => el.message);
