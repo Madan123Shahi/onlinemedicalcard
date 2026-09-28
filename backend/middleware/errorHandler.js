@@ -4,7 +4,7 @@ import ApiError from "../utils/ApiError.js";
 const errorHandler = (err, req, res, next) => {
   let error = err;
 
-  console.error("🔍 ERROR DETAILS:", error); //
+  // console.error("🔍 ERROR DETAILS:", error); //
   // 1. Convert standard errors to our clean ApiError shape
   if (!error.isApiError) {
     // Handle Mongoose Duplicate Key Error (e.g., unique: true on email)

@@ -2,7 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser"; // 👈 Added for secure cookie parsing
 import helmet from "helmet"; // 👈 Highly recommended to secure your HTTP headers
-
+import cors from "cors"; // 👈 Added for cross-origin requests (frontend-backend communication)
 // 1. Core Database & Error Handler Imports
 import { connectDB, closeDB } from "./config/db.js";
 import errorHandler from "./middleware/errorHandler.js";
@@ -15,6 +15,14 @@ const PORT = process.env.PORT || 5000;
 
 // 3. Core Global Middlewares
 app.use(helmet()); // Basic security headers protection
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:5173", // Allows your React Vite dev server to connect
+    credentials: true, // 🔒 CRITICAL: Allows Axios to pass httpOnly cookies back and forth
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 app.use(express.json()); // Parses incoming JSON payloads
 app.use(cookieParser(process.env.COOKIE_SECRET)); // 👈 Parses incoming signed httpOnly cookies
 
