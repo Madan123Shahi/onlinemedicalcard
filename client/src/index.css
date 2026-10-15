@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+/* Design tokens: cool card-stock paper, navy ink, one teal, one lemon used only on the card's holo strip */
+@theme {
+  --color-paper: #f4f7f8;
+  --color-ink: #12263a;
+  --color-ink-soft: #4a5b6c;
+  --color-teal: #0e8b8d;
+  --color-teal-deep: #0a6466;
+  --color-mint: #d8eeea;
+  --color-lemon: #e6f26a;
+  --color-line: #d5dee3;
+  --font-display: "Familjen Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Public Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-tight;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-teal);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply bg-ink text-white hover:bg-teal-deep;
+  }
+  .btn-ghost {
+    @apply border border-ink/25 text-ink hover:border-ink hover:bg-white;
+  }
+  .btn-danger {
+    @apply border border-red-300 text-red-700 hover:bg-red-50;
+  }
+  .field {
+    @apply w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-base text-ink placeholder:text-ink-soft/70;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-ink;
+  }
+  .panel {
+    @apply rounded-xl border border-line bg-white;
+  }
+}
+
+/* The card tilts toward the pointer. Only the user triggers this motion. */
+.omc-card {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.15s ease-out;
+}
+.omc-holo {
+  background: linear-gradient(115deg, #e6f26a 0%, #7fe0d0 35%, #8fb4ff 65%, #e6f26a 100%);
+  background-size: 200% 100%;
+  background-position: var(--hx, 0%) 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .omc-card {
+    transform: none;
+    transition: none;
+  }
+}
